@@ -28,7 +28,7 @@ def entropy_crit(input_image, sq_lin=200):
     entropy_dic = dict(zip_iterator)
     # помеять ревёрс, чтобы брать самые большие энтропии
     entropy_list.sort(reverse=True)
-    min_entropy = random.choice(entropy_list[:5])
+    min_entropy = random.choice(entropy_list[:5]) # max
     result = entropy_dic[min_entropy]
     result[0] += np.random.randint(0, sq_lin // 2)
     result[1] += np.random.randint(0, sq_lin // 2)
@@ -256,7 +256,7 @@ if __name__ == '__main__':
         image = load_image(IMAGE_NAME, DATA_ROOT)
         # display_image(image) # plot data
         data = preprocess(image)
-        
+
         final_image = blend_image(data, BLEND_TYPE, GRAD_MIX) # blend the image
 
         # plot results
