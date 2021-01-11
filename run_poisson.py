@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse as sps
 import scipy.sparse.linalg as linalg
 import cv2
-import matplotlib.pyplot as mpplt
+import matplotlib.pyplot as plt
 from scipy.stats import entropy
 import random
 
@@ -28,7 +28,6 @@ def entropy_crit(input_image, sq_lin=200):
     entropy_dic = dict(zip_iterator)
     # помеять ревёрс, чтобы брать самые большие энтропии
     entropy_list.sort(reverse=True)
-    # TODO: нужно поменять внизу сколько энтропий мы рассматриваем
     min_entropy = random.choice(entropy_list[:5])
     result = entropy_dic[min_entropy]
     result[0] += np.random.randint(0, sq_lin // 2)
@@ -47,7 +46,6 @@ def load_image(filename, DATA_ROOT):
     image_data['source'] = cv2.normalize(source.astype('float'), None, 0.0, 1.0, norm_type=cv2.NORM_MINMAX)
     image_data['mask'] = cv2.normalize(mask.astype('float'), None, 0.0, 1.0, norm_type=cv2.NORM_MINMAX)
     image_data['target'] = cv2.normalize(target.astype('float'), None, 0.0, 1.0, norm_type=cv2.NORM_MINMAX)
-    print(entropy_crit(target))
     image_data['dims'] = entropy_crit(target)
 
     return image_data
@@ -55,17 +53,17 @@ def load_image(filename, DATA_ROOT):
 
 def display_image(image_data):
     # show the image
-    mpplt.figure(figsize=(16, 16))
+    plt.figure(figsize=(16, 16))
     for i in range(3):
-        if (i == 0):
+        if i == 0:
             img_string = 'source'
-        elif (i == 1):
+        elif i == 1:
             img_string = 'mask'
         else:
             img_string = 'target'
         img = image_data[img_string]
-        mpplt.subplot(1, 3, i + 1)
-        mpplt.imshow(img[:, :, [2, 1, 0]])
+        plt.subplot(1, 3, i + 1)
+        plt.imshow(img[:, :, [2, 1, 0]])
 
 
 def preprocess(image_data):
@@ -75,20 +73,20 @@ def preprocess(image_data):
     target = image_data['target']
 
     # get image shape and offset
-    Hs,Ws,_ = source.shape
-    Ht,Wt,_ = target.shape
+    Hs, Ws,_ = source.shape
+    Ht, Wt,_ = target.shape
     Ho, Wo = image_data['dims']
 
     # adjust source and mask if offset is negative.
     # if mask is rolled eg. from the top it rolls
     # to the bottom, crop the rolled portion
-    if(Ho < 0):
+    if Ho < 0:
         mask = np.roll(mask, Ho, axis=0)
         source = np.roll(source, Ho, axis=0)
         mask[Hs+Ho:,:,:] = 0 # added because Ho < 0
         source[Hs+Ho:,:,:] = 0
         Ho = 0
-    if(Wo < 0):
+    if Wo < 0:
         mask = np.roll(mask, Wo, axis=1)
         source = np.roll(source, Wo, axis=1)
         mask[:,Ws+Wo:,:] = 0
@@ -254,16 +252,18 @@ if __name__ == '__main__':
     GRAD_MIX = True
     IMAGE_NAME = "8.png"
 
-    image = load_image(IMAGE_NAME, DATA_ROOT)
-    display_image(image) # plot data
-    data = preprocess(image)
-    display_image(data) # plot for sanity check
-    final_image = blend_image(data, BLEND_TYPE, GRAD_MIX) # blend the image
+    for i in range(5):
+        image = load_image(IMAGE_NAME, DATA_ROOT)
+        # display_image(image) # plot data
+        data = preprocess(image)
+        
+        final_image = blend_image(data, BLEND_TYPE, GRAD_MIX) # blend the image
 
-    # plot results
-    final_image = np.clip(final_image, 0.0, 1.0)
-    mpplt.subplot(1, 3, 3)
-    mpplt.imshow(final_image[:, :, [2, 1, 0]])
+        # plot results
+        final_image = np.clip(final_image, 0.0, 1.0)
+        # plt.subplot(1, 3, 3)
+        plt.imshow(final_image[:, :, [2, 1, 0]])
+        plt.show()
 
     # save image
     save_img = final_image * 255
