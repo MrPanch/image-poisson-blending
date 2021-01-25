@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import entropy
 import random
 
+from GLCM import glcm_crit
+
 
 def entropy_crit(input_image, sq_lin=200):
     entropy_list = []
